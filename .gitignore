@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Model checkpoints & weights
+# best.pt files are tracked via Git LFS (see .gitattributes)
+# Epoch/intermediate checkpoints are excluded
+checkpoints/pm2s/rhythm_quantizer/epoch_*.pt
+checkpoints/pm2s/rhythm_quantizer/final.pt
+*.pth
+*.ckpt
+*.bin
+pretrained/
+
+# Datasets
+datasets/
+data/manifests/
+
+# Outputs
+outputs/
+output_scores/
+synthetic/
+
+# Experiment tracking
+wandb/
+
+# IDE & OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Secrets / env
+.env
+.env.*
+
+# Claude / Agent-specific
+.claude/
+AGENTS.md

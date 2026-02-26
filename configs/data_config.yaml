@@ -1,0 +1,149 @@
+# Audio-to-Score Data Configuration
+# Paths are relative to the repository root.
+# Override them with absolute paths on your machine, or set environment
+# variables and reference them here.
+
+# =============================================================================
+# Dataset Paths
+# =============================================================================
+
+datasets:
+  maestro:
+    path: "datasets/maestro_v3.0.0"
+    type: "paired_audio_midi"
+    sample_rate: 44100
+    format: "wav"
+
+  musicnet:
+    path: "datasets/musicnet/musicnet_yourmt3_16k"
+    type: "paired_audio_midi"
+    sample_rate: 16000
+    format: "wav"
+
+  slakh2100:
+    path: "datasets/slakh2100_flac_redux"
+    type: "multitrack"
+    sample_rate: 44100
+    format: "flac"
+
+  pdmx:
+    path: "datasets/pdmx/PDMX"
+    type: "musicxml_only"
+    description: "250k+ MusicXML files for synthetic data"
+
+  lakh_midi:
+    path: "datasets/lakh_midi/lmd_full"
+    type: "midi_only"
+    description: "176k MIDI files"
+
+  asap:
+    path: "datasets/asap"
+    type: "aligned_score_performance"
+    description: "1068 performances aligned with 222 scores"
+
+  acpas:
+    path: "datasets/acpas"
+    type: "aligned_audio_score"
+    description: "Aligned classical piano audio and score"
+
+  urmp:
+    path: "datasets/urmp/Dataset"
+    type: "multimodal"
+    description: "44 multi-instrument pieces"
+
+  msmd:
+    path: "datasets/msmd/msmd_aug_v1-1_no-audio"
+    type: "audio_sheet_aligned"
+    description: "497 pieces with audio-sheet alignment"
+
+# =============================================================================
+# Pretrained Weights
+# =============================================================================
+
+pretrained:
+  musicfm:
+    path: "pretrained/musicfm"
+    model_file: "pretrained_msd.pt"
+    stats_file: "msd_stats.json"
+    description: "MusicFM-MSD pretrained on Million Song Dataset"
+
+# =============================================================================
+# Augmentation Resources
+# =============================================================================
+
+augmentation:
+  musan:
+    path: "datasets/musan_16k"
+    categories: ["music", "speech", "noise"]
+
+  mit_ir:
+    path: "datasets/MIT_IR_16k"
+    description: "MIT impulse responses for reverb"
+
+# =============================================================================
+# Synthetic Data Generation
+# =============================================================================
+
+synthetic:
+  # FluidSynth configuration
+  soundfont:
+    path: "/usr/share/sounds/sf2/FluidR3_GM.sf2"
+    fallback: "https://member.keymusician.com/Member/FluidR3_GM/FluidR3_GM.sf2"
+
+  # Rendering settings
+  render:
+    sample_rate: 44100
+    format: "wav"
+
+  # Humanization
+  humanization:
+    enabled: true
+    timing_std_ms: 20      # Standard deviation for note timing
+    velocity_std: 10       # Standard deviation for velocity
+    tempo_variation: 0.05  # Percentage tempo variation
+
+  # Output
+  output_dir: "datasets/pdmx_rendered"
+  max_files: null  # null = render all, or specify a number
+
+# =============================================================================
+# Data Splits
+# =============================================================================
+
+splits:
+  maestro:
+    # Use official MAESTRO splits
+    use_official: true
+
+  default:
+    train: 0.8
+    val: 0.1
+    test: 0.1
+    seed: 42
+
+# =============================================================================
+# Preprocessing
+# =============================================================================
+
+preprocessing:
+  audio:
+    target_sample_rate: 16000
+    mono: true
+    normalize: true
+    trim_silence: true
+    silence_threshold_db: -40
+
+  midi:
+    sustain_pedal: true      # Whether to apply sustain pedal to notes
+    min_velocity: 1          # Minimum velocity to keep
+    max_polyphony: null      # null = no limit
+
+  # Maximum duration
+  max_duration_seconds: 600  # 10 minutes
+
+  # Chunking
+  chunk:
+    enabled: true
+    chunk_size_seconds: 30
+    overlap_seconds: 5
+    min_chunk_size_seconds: 5

@@ -1,0 +1,227 @@
+# Audio-to-Score Training Configuration
+
+# =============================================================================
+# Stage 1: Acoustic Model Training
+# =============================================================================
+
+acoustic_training:
+  # Phase 1: Synthetic Pretraining
+  phase1_synthetic:
+    enabled: true
+    epochs: 50
+    batch_size: 32
+    gradient_accumulation_steps: 4  # Effective batch size: 128
+    learning_rate: 1.0e-4
+    warmup_steps: 5000
+    scheduler: "cosine"
+    weight_decay: 0.01
+    max_grad_norm: 1.0
+
+    # Data
+    datasets:
+      - name: "pdmx_synthetic"
+        weight: 1.0
+
+    # Augmentation (light for synthetic)
+    augmentation:
+      enabled: false
+
+  # Phase 2: Real Audio Fine-tuning
+  phase2_finetune:
+    enabled: true
+    epochs: 100
+    batch_size: 16
+    gradient_accumulation_steps: 8  # Effective batch size: 128
+    learning_rate: 5.0e-5
+    warmup_steps: 2000
+    scheduler: "cosine_with_restarts"
+    weight_decay: 0.01
+    max_grad_norm: 1.0
+
+    # Data
+    datasets:
+      - name: "maestro"
+        weight: 0.6
+        path: "/workspace/datasets/maestro_v3.0.0"
+      - name: "musicnet"
+        weight: 0.2
+        path: "/workspace/huseyn/audio-to-score/datasets/musicnet_yourmt3_16k"
+      - name: "asap"
+        weight: 0.2
+        path: "/workspace/huseyn/audio-to-score/datasets/asap"
+
+    # Curriculum Learning
+    curriculum:
+      enabled: true
+      stages:
+        - name: "clean_piano"
+          epochs: [0, 30]
+          noise_prob: 0.0
+        - name: "light_augmentation"
+          epochs: [30, 60]
+          noise_prob: 0.3
+        - name: "heavy_augmentation"
+          epochs: [60, 100]
+          noise_prob: 0.5
+
+    # Augmentation
+    augmentation:
+      enabled: true
+      # Noise augmentation
+      noise:
+        enabled: true
+        types: ["musan", "mit_ir"]
+        snr_range: [5, 20]  # dB
+        musan_path: "/workspace/datasets/musan_16k"
+        mit_ir_path: "/workspace/datasets/MIT_IR_16k"
+      # Pitch shift
+      pitch_shift:
+        enabled: true
+        cents_range: [-10, 10]
+      # Time stretch
+      time_stretch:
+        enabled: false  # Disabled until MIDI retiming is implemented
+        rate_range: [0.95, 1.05]
+      # Gain variation
+      gain:
+        enabled: true
+        db_range: [-6, 6]
+
+  # Loss Configuration
+  loss:
+    type: "focal"
+    focal_gamma: 2.0
+    label_smoothing: 0.1
+    # Auxiliary onset regression loss
+    onset_regression:
+      enabled: true
+      weight: 0.1
+
+  # Optimization
+  optimizer: "adamw"
+  mixed_precision: true  # FP16/BF16
+
+  # Checkpointing
+  save_every_n_epochs: 1
+  keep_last_n_checkpoints: 5
+
+  # Logging
+  log_every_n_steps: 100
+  eval_every_n_steps: 1000
+
+# =============================================================================
+# Stage 2: PM2S Model Training
+# =============================================================================
+
+pm2s_training:
+  # Global PM2S defaults (can be overridden per-task)
+  seed: 42
+  min_lr_ratio: 0.01
+  weight_decay: 0.01
+  max_grad_norm: 1.0
+  train_max_seq_len: null
+  eval_max_seq_len: null
+  random_crop: true
+  sample_by_dataset_weights: false
+
+  # Rhythm Quantizer
+  rhythm_quantizer:
+    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/rhythm_piano_all.pt"
+    epochs: 20
+    batch_size: 1024
+    learning_rate: 1.0e-4
+    val_split: 0.1
+    log_every_n_steps: 50
+    checkpoint_dir: "checkpoints/pm2s"
+    warmup_steps: 1000
+    sample_by_dataset_weights: true
+    datasets:
+      - name: "asap"
+        weight: 0.35
+      - name: "acpas"
+        weight: 0.25
+      - name: "pdmx"
+        weight: 0.2
+      - name: "atepp"
+        weight: 0.1
+      - name: "msmd"
+        weight: 0.1
+
+  # Voice Separator
+  voice_separator:
+    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/voice_piano_all.pt"
+    epochs: 10
+    batch_size: 512
+    learning_rate: 1.0e-4
+    val_split: 0.1
+    log_every_n_steps: 50
+    checkpoint_dir: "checkpoints/pm2s"
+    warmup_steps: 500
+    sample_by_dataset_weights: true
+    datasets:
+      - name: "asap"
+        weight: 0.5
+      - name: "pdmx"
+        weight: 0.3
+      - name: "atepp"
+        weight: 0.1
+      - name: "msmd"
+        weight: 0.1
+
+  # Key Estimator
+  key_estimator:
+    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/key_piano_all.pt"
+    epochs: 10
+    batch_size: 512
+    learning_rate: 1.0e-4
+    val_split: 0.1
+    log_every_n_steps: 50
+    checkpoint_dir: "checkpoints/pm2s"
+    warmup_steps: 200
+    sample_by_dataset_weights: true
+    datasets:
+      - name: "asap"
+        weight: 0.2
+      - name: "acpas"
+        weight: 0.2
+      - name: "pdmx"
+        weight: 0.15
+      - name: "atepp"
+        weight: 0.1
+      - name: "msmd"
+        weight: 0.1
+      - name: "maestro"
+        weight: 0.1
+      - name: "lakh"
+        weight: 0.1
+      - name: "musicnet"
+        weight: 0.05
+
+# =============================================================================
+# Hardware Configuration
+# =============================================================================
+
+hardware:
+  # GPU settings
+  device: "cuda"
+  num_gpus: 8
+  gpu_ids: [0,1,2,3,4,5,6,7]
+
+  # DataLoader
+  num_workers: 8
+  pin_memory: true
+
+  # Memory optimization
+  gradient_checkpointing: true
+  empty_cache_freq: 100  # Empty CUDA cache every N steps
+
+# =============================================================================
+# Experiment Tracking
+# =============================================================================
+
+wandb:
+  enabled: true
+  project: "PM2S"
+  entity: "sori-ai"
+  name: "pm2s_1"
+  tags: ["pm2s", "piano-only"]
