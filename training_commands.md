@@ -65,8 +65,4 @@ Notes:
 - If SWD eval stays low, check whether RhythmQuantizer is learning tempo/time signature with `python evaluation/debug_rhythm_quantizer_swd.py --ckpt checkpoints/pm2s/rhythm_quantizer/epoch_5.pt`.
 
 
-"Oh, finally we got some results! Averages
-  baseline: onset_f1=0.8220, onset+offset_f1=0.7819, frame_f1=0.9090, time=883.0 ms
-  pm2s    : onset_f1=0.4782, onset+offset_f1=0.4637, frame_f1=0.6390, time=667.7 ms
-
-Please update CODEX.md with everything that you understood and fixed, so that we won't lose our progress. I checked /workspace/huseyn/audio-to-score/outputs/Schubert_D911-21.pm2s.musicxml manually and noticed that there are A LOT AND BIG gaps between notes, and that's why it's 6:56 minutes long (original is 2:04). Present ideas to fix this."
+Observed issue: `outputs/Schubert_D911-21.pm2s.musicxml` contained large gaps between notes, producing a 6:56 score for a 2:04 performance. The timing mismatch needs further investigation.

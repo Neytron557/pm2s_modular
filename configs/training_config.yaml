@@ -42,13 +42,13 @@ acoustic_training:
     datasets:
       - name: "maestro"
         weight: 0.6
-        path: "/workspace/datasets/maestro_v3.0.0"
+        path: "datasets/maestro_v3.0.0"
       - name: "musicnet"
         weight: 0.2
-        path: "/workspace/huseyn/audio-to-score/datasets/musicnet_yourmt3_16k"
+        path: "datasets/musicnet_yourmt3_16k"
       - name: "asap"
         weight: 0.2
-        path: "/workspace/huseyn/audio-to-score/datasets/asap"
+        path: "datasets/asap"
 
     # Curriculum Learning
     curriculum:
@@ -72,8 +72,8 @@ acoustic_training:
         enabled: true
         types: ["musan", "mit_ir"]
         snr_range: [5, 20]  # dB
-        musan_path: "/workspace/datasets/musan_16k"
-        mit_ir_path: "/workspace/datasets/MIT_IR_16k"
+        musan_path: "datasets/musan_16k"
+        mit_ir_path: "datasets/MIT_IR_16k"
       # Pitch shift
       pitch_shift:
         enabled: true
@@ -126,7 +126,7 @@ pm2s_training:
 
   # Rhythm Quantizer
   rhythm_quantizer:
-    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/rhythm_piano_all.pt"
+    manifest: "datasets/pm2s_manifests/rhythm_piano_all.pt"
     epochs: 20
     batch_size: 1024
     learning_rate: 1.0e-4
@@ -149,7 +149,7 @@ pm2s_training:
 
   # Voice Separator
   voice_separator:
-    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/voice_piano_all.pt"
+    manifest: "datasets/pm2s_manifests/voice_piano_all.pt"
     epochs: 10
     batch_size: 512
     learning_rate: 1.0e-4
@@ -170,7 +170,7 @@ pm2s_training:
 
   # Key Estimator
   key_estimator:
-    manifest: "/workspace/huseyn/audio-to-score/datasets/pm2s_manifests/key_piano_all.pt"
+    manifest: "datasets/pm2s_manifests/key_piano_all.pt"
     epochs: 10
     batch_size: 512
     learning_rate: 1.0e-4

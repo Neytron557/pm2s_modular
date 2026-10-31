@@ -1434,7 +1434,7 @@ def main() -> None:
     pdmx_root = ds_path("pdmx", repo_root / "datasets" / "pdmx" / "PDMX")
     atepp_root = repo_root / "datasets" / "ATEPP" / "ATEPP-1.2"
     msmd_root = ds_path("msmd", repo_root / "datasets" / "msmd" / "msmd_aug_v1-1_no-audio")
-    maestro_root = ds_path("maestro", Path("/workspace/datasets/maestro_v3.0.0"))
+    maestro_root = ds_path("maestro", repo_root / "datasets" / "maestro_v3.0.0")
     lakh_root = ds_path("lakh_midi", repo_root / "datasets" / "lakh_midi" / "lmd_full")
     musicnet_root = ds_path("musicnet", repo_root / "datasets" / "musicnet" / "musicnet_yourmt3_16k")
 

@@ -272,3 +272,7 @@ All paths are relative to the repo root and configured in `configs/data_config.y
 ## License
 
 Apache 2.0
+
+## Local dataset paths
+
+Run training and manifest commands from the repository root. Dataset and manifest paths in `configs/training_config.yaml` are relative to that root. Place data under `datasets/` or update the config paths for your installation.
